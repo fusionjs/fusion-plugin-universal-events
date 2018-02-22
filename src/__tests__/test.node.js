@@ -1,28 +1,12 @@
-// MIT License
-
-// Copyright (c) 2017 Uber Technologies, Inc.
-
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
+/** Copyright (c) 2018 Uber Technologies, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
 
 import test from 'tape-cup';
-import App, {withDependencies, compose} from 'fusion-core';
-import {request} from 'fusion-test-utils';
+import App, {createPlugin, compose} from 'fusion-core';
+import {getSimulator} from 'fusion-test-utils';
 import UniversalEventsPlugin, {GlobalEmitter} from '../server.js';
 import {UniversalEventsToken} from '../index';
 
@@ -90,15 +74,18 @@ test('Server EventEmitter - events with ctx', async t => {
   const app = new App('el', el => el);
   app.register(UniversalEventsToken, UniversalEventsPlugin);
   app.register(
-    withDependencies({events: UniversalEventsToken})(({events}) => {
-      events.on('b', ({x}, ctx) => {
-        t.equals(x, 1, 'payload is correct');
-        t.equals(ctx, mockCtx, 'ctx is correct');
-        globalCalled = true;
-      });
-      events.emit('b', {x: 1}, mockCtx);
-      t.ok(globalCalled, 'called global handler');
-      t.end();
+    createPlugin({
+      deps: {events: UniversalEventsToken},
+      provides: ({events}) => {
+        events.on('b', ({x}, ctx) => {
+          t.equals(x, 1, 'payload is correct');
+          t.equals(ctx, mockCtx, 'ctx is correct');
+          globalCalled = true;
+        });
+        events.emit('b', {x: 1}, mockCtx);
+        t.ok(globalCalled, 'called global handler');
+        t.end();
+      },
     })
   );
   app.resolve();
@@ -238,8 +225,8 @@ test('Server EventEmitter batching', async t => {
       return next();
     };
   });
-
-  await request(app, '/lol', {method: 'POST'});
+  const simulator = getSimulator(app);
+  await simulator.request('/lol', {method: 'POST'});
 
   setTimeout(() => {
     t.ok(flags.preawait, 'flushes batch from pre-await emitted events');
