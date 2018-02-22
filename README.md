@@ -110,7 +110,7 @@ Required. Browser-only. See [https://github.com/fusionjs/fusion-tokens#fetchtoke
 
 #### Service API
 
-#### `events.on`
+##### `events.on`
 
 Registers a callback to be called when an event of a type is emitted. Note that the callback will not be called if the event is emitted before the callback is registered.
 
@@ -121,7 +121,7 @@ events.on(type: string, callback: (payload: Object, ctx: ?Context) => void)
 - `type: string` - Required. The type of event to listen on. The type `*` denotes all events.
 - `callback: (mappedPayload: Object, ctx: ?Context) => void` - Required. Runs when an event of matching type occurs. Receives the `payload` after it has been transformed by [mapper functions](#eventsmap), as well an optional ctx object.
 
-#### `events.emit`
+##### `events.emit`
 
 ```js
 events.emit(type:string, payload: Object)
@@ -130,7 +130,7 @@ events.emit(type:string, payload: Object)
 - `type: string` - Required. The type of event to emit. The type `*` denotes all events.
 - `payload: Object` - Optional. Data to be passed to event handlers
 
-#### `events.map`
+##### `events.map`
 
 Mutates the payload. Useful if you need to modify the payload to include metrics or other meta data.
 
@@ -141,7 +141,7 @@ events.map(type: string, callback: (payload: Object, ctx: ?Context) => Object)
 - `type: string` - Required. The type of event to listen on. The type `*` denotes all events.
 - `callback: (payload: Object, ctx: ?Context) => Object` - Required. Runs when an event of matching type occurs. Should return a modified `payload`
 
-#### `events.flush`
+##### `events.flush`
 
 Flushes the data queue to the server immediately. Does not affect flush frequency
 
@@ -149,7 +149,7 @@ Flushes the data queue to the server immediately. Does not affect flush frequenc
 events.flush()
 ```
 
-#### `events.setFrequency`
+##### `events.setFrequency`
 
 ```js
 events.setFrequency(frequency: number)
@@ -159,7 +159,7 @@ Sets the frequency at which data is flushed to the server. Resets the interval t
 
 - `frequency: number` - Required.
 
-#### `events.teardown`
+##### `events.teardown`
 
 ```js
 events.teardown()
@@ -167,7 +167,7 @@ events.teardown()
 
 Stops the interval timer, clears the data queue and prevents any further data from being flushed to the server. Useful for testing
 
-#### `events.from`
+##### `events.from`
 
 ```js
 const scoped = events.from(ctx: Context);
