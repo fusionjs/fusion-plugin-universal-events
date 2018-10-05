@@ -23,7 +23,9 @@ The `UniversalEvents` abstraction was designed to allow you to emit and react to
 * [Setup](#setup)
 * [API](#api)
   * [Registration API](#registration-api)
+    * [`UniversalEvents`](#universalevents)
   * [Dependencies](#dependencies)
+    * [`FetchToken`](#fetchtoken)
   * [Service API](#service-api)
 * [Other examples](#other-examples)
 
@@ -94,17 +96,30 @@ import UniversalEvents from 'fusion-plugin-universal-events';
 
 The plugin. Provides the [service API](#service-api). Typically should be registered to `UniversalEventsToken`.
 
-##### `UniversalEventsToken`
+#### Dependencies
+
+##### `FetchToken`
 
 ```js
-import {UniversalEventsToken} from 'fusion-plugin-universal-events';
+import {FetchToken} from 'fusion-tokens';
+// ...
+__BROWSER__ && app.register(FetchToken, window.fetch);
 ```
 
-Typically it's registered with [`UniversalEvents`](#universalevents).
+**Required. Browser-only.** See [https://github.com/fusionjs/fusion-tokens#fetchtoken](https://github.com/fusionjs/fusion-tokens#fetchtoken)
 
-##### Required dependencies
+##### `UniversalEventsBatchStorageToken`
 
-Required. Browser-only. See [https://github.com/fusionjs/fusion-tokens#fetchtoken](https://github.com/fusionjs/fusion-tokens#fetchtoken)
+```js
+import {UniversalEventsBatchStorageToken, localBatchStorage} from 'fusion-plugin-universal-events';
+// ...
+__BROWSER__ && app.register(UniversalEventsBatchStorageToken, inMemoryBatchStorage);
+```
+
+**Optional. Browser-only.** 
+
+By default events will be stored in browser local storage before they are sent to the server.
+If you wish to override this behavior you can supply your own batch storage providing it complies with the `BatchStorage` interface type.
 
 ---
 
@@ -115,7 +130,7 @@ Required. Browser-only. See [https://github.com/fusionjs/fusion-tokens#fetchtoke
 Registers a callback to be called when an event of a type is emitted. Note that the callback will not be called if the event is emitted before the callback is registered.
 
 ```js
-events.on(type: string, callback: (payload: Object, ctx: ?Context) => void)
+events.on(type: string, callback: (payload: Object, ctx: ?Context, type: string) => void)
 ```
 
 - `type: string` - Required. The type of event to listen on. The type `*` denotes all events.
@@ -135,7 +150,7 @@ events.emit(type:string, payload: Object)
 Mutates the payload. Useful if you need to modify the payload to include metrics or other meta data.
 
 ```js
-events.map(type: string, callback: (payload: Object, ctx: ?Context) => Object)
+events.map(type: string, callback: (payload: Object, ctx: ?Context, type: string) => Object)
 ```
 
 - `type: string` - Required. The type of event to listen on. The type `*` denotes all events.
